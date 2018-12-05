@@ -11,13 +11,13 @@ class Server {
         }
     }
 
-    getAddr(socket) {
+    static getAddr(socket) {
         let address = socket.remoteAddress;
         let port = socket.remotePort;
         return `${address}:${port}`;
     }
 
-    getHostName(headerBuffer) {
+    static getHostName(headerBuffer) {
         let headerString = headerBuffer.toString();
         let arr = headerString.match(/host[^\r\n]+/gi);
         let host = '';
@@ -31,7 +31,7 @@ class Server {
 
     Start() {
         net.createServer(socket => {
-            let addr = this.getAddr(socket);
+            let addr = Server.getAddr(socket);
             this.addr_map[addr] = {
                 host: null,
                 header: true
@@ -40,8 +40,7 @@ class Server {
                 let host;
                 if (this.addr_map[addr].header) {
                     // 第一次，尝试获取请求头中的host信息
-                    host = this.getHostName(buffer);
-                    this.connections[addr] = socket;
+                    host = Server.getHostName(buffer);
                     this.connections[addr] = socket;
                     this.addr_map[addr].host = host;
                     this.addr_map[addr].header = false;
@@ -50,7 +49,7 @@ class Server {
                 }
                 let tunnel = this.tunnel.getByHost(host);
                 if (!tunnel) {
-                    socket.write("Http/1.1 200 OK\r\n\r\nclient not online");
+                    socket.write("HTTP/1.1 200 OK\r\n\r\nclient not online");
                     socket.destroy();
                     return;
                 }

@@ -10,14 +10,14 @@ class Tunnel {
         return this.tunnel[host];
     }
 
-    auth(token) {
+    static auth(token) {
         return token;
     }
 
     Start() {
         this.io.on('connection', (socket) => {
             let token = socket.handshake.query.token;
-            let host = this.auth(token);
+            let host = Tunnel.auth(token);
             if (!host) {
                 // tode : 剔掉
                 socket.emit('close', '认证失败');
